@@ -16,7 +16,9 @@ app.set("view engine", "hbs");
 app.set('views','./views');
 app.disable('x-powered-by');
 
-app.use('/', express.static('dist'));
+app.use('/dist', express.static('dist'));
+app.use('/', express.static('public'));
+
 app.get('/', function(req, res) {
     res.render('index')
 });
