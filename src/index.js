@@ -5,7 +5,10 @@ let state = {
     camera: undefined,
     renderer: undefined,
     controls: undefined,
-    model: undefined
+    model: undefined,
+    joystick: {
+        isActivate: false
+    }
 }
 
 const init = () => {
@@ -45,10 +48,10 @@ const init = () => {
     state.scene.add(mesh);
     
     
-    state.controls = new OrbitControls( state.camera, state.renderer.domElement );
+    //xstate.controls = new OrbitControls( state.camera, state.renderer.domElement );
     function animate() {
         requestAnimationFrame( animate );
-        state.controls.update();
+        //state.controls.update();
     
         state.renderer.render( state.scene, state.camera );
     }
@@ -66,11 +69,62 @@ const addPlayer = () => {
     
 }
 
+const joystick = {
+    mousedown: (e) => {
+        console.log(e)
+        let joystickBody = document.querySelector("#joystick")
+        let joystickControl = document.querySelector("#joystick-control")
+        joystickBody.classList.remove('d-none')
+        joystickControl.classList.remove('d-none')
 
+        state.joystick.isActivate = true
+
+        joystickBody.style.top = `${e.offsetY-12}px`
+        joystickBody.style.left = `${e.offsetX-12}px`
+
+        joystickControl.style.top = `${e.offsetY-12}px`
+        joystickControl.style.left = `${e.offsetX-12}px`
+    },
+    mouseup: (e) => {
+        let joystickBody = document.querySelector("#joystick")
+        let joystickControl = document.querySelector("#joystick-control")
+        let joystickLine = document.querySelector("#joystick-line")
+
+        state.joystick.isActivate = false
+
+        joystickBody.classList.add('d-none')
+        joystickControl.classList.add('d-none')
+        joystickLine.classList.add('d-none')
+
+    },
+    move: (e) => {
+        if (state.joystick.isActivate) {
+            let joystickControl = document.querySelector("#joystick-control")
+            let joystickBody = document.querySelector("#joystick")
+            let joystickLine = document.querySelector("#joystick-line")
+
+            joystickLine.classList.remove('d-none')
+
+            let controlPosition = {
+                x: e.clientX-9,
+                y: e.clientY-9
+            }
+
+            joystickControl.style.top = `${controlPosition.y}px`
+            joystickControl.style.left = `${controlPosition.x}px`
+
+            joystickLine.querySelector('line').setAttribute("x1", e.clientX);
+            joystickLine.querySelector('line').setAttribute("y1", e.clientY);
+
+            joystickLine.querySelector('line').setAttribute("x2", Number(joystickBody.style.left.split('px')[0])+12);
+            joystickLine.querySelector('line').setAttribute("y2", Number(joystickBody.style.top.split('px')[0])+12);
+        }
+    },
+}
+
+document.addEventListener("mousedown", joystick.mousedown);
+document.addEventListener("mouseup", joystick.mouseup);
+document.addEventListener("mousemove", joystick.move);
 
 init()
 addPlayer()
-
-
-
-
