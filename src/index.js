@@ -20,8 +20,12 @@ const init = () => {
 
 
     
-    state.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    state.camera.position.set( 0, 2, 3 );
+    state.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
+    state.camera.position.set( 0, 3, 7 );
+    state.scene.add(state.camera);
+
+    addPlayer()
+
 
     state.renderer = new THREE.WebGLRenderer();
     state.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -46,15 +50,37 @@ const init = () => {
     mesh.rotation.x = - Math.PI / 2;
     mesh.receiveShadow = true;
     state.scene.add(mesh);
+
     
     
     //xstate.controls = new OrbitControls( state.camera, state.renderer.domElement );
     function animate() {
         requestAnimationFrame( animate );
-        //state.controls.update();
+        let joystickBody = document.querySelector("#joystick")
+        let joystickControl = document.querySelector("#joystick-control")
+
+        if (state.joystick.isActivate) {
+
+            let controlPosition = {
+                x: Number(joystickControl.style.left.split('px')[0]),
+                y: Number(joystickControl.style.top.split('px')[0])
+            }
+
+            let joystickPosition = {
+                x: Number(joystickBody.style.left.split('px')[0]),
+                y: Number(joystickBody.style.top.split('px')[0])
+            }
+
+            let radian = joystick.getAngle(controlPosition, joystickPosition)
+            state.model.rotation.y = -radian
+            state.model.translateZ(-0.1)
+        }
     
         state.renderer.render( state.scene, state.camera );
     }
+
+
+
     animate();
     
 }
@@ -64,14 +90,16 @@ const addPlayer = () => {
     loader.load('/gltf/ball.glb', ( gltf ) => {
         state.model = gltf.scene
         state.model.position.set(0,0,0);
-        state.scene.add( state.model );
+        state.scene.add(state.model);
+        state.model.add(state.camera)
+        console.log(state.model)
     });
-    
+
+
 }
 
 const joystick = {
     mousedown: (e) => {
-        console.log(e)
         let joystickBody = document.querySelector("#joystick")
         let joystickControl = document.querySelector("#joystick-control")
         joystickBody.classList.remove('d-none')
@@ -115,7 +143,6 @@ const joystick = {
                 y: Number(joystickBody.style.top.split('px')[0])+12
             }
 
-            let radian = joystick.getAngle(controlPosition, joystickPosition)
 
             joystickControl.style.top = `${controlPosition.y}px`
             joystickControl.style.left = `${controlPosition.x}px`
@@ -144,4 +171,3 @@ document.addEventListener("mouseup", joystick.mouseup);
 document.addEventListener("mousemove", joystick.move);
 
 init()
-addPlayer()
