@@ -110,17 +110,34 @@ const joystick = {
                 y: e.clientY-9
             }
 
+            let joystickPosition = {
+                x: Number(joystickBody.style.left.split('px')[0])+12,
+                y: Number(joystickBody.style.top.split('px')[0])+12
+            }
+
+            let radian = joystick.getAngle(controlPosition, joystickPosition)
+
             joystickControl.style.top = `${controlPosition.y}px`
             joystickControl.style.left = `${controlPosition.x}px`
 
             joystickLine.querySelector('line').setAttribute("x1", e.clientX);
             joystickLine.querySelector('line').setAttribute("y1", e.clientY);
 
-            joystickLine.querySelector('line').setAttribute("x2", Number(joystickBody.style.left.split('px')[0])+12);
-            joystickLine.querySelector('line').setAttribute("y2", Number(joystickBody.style.top.split('px')[0])+12);
+            joystickLine.querySelector('line').setAttribute("x2", joystickPosition.x);
+            joystickLine.querySelector('line').setAttribute("y2", joystickPosition.y);
+        }
+    },
+    getAngle: (p1, p2) => {
+        if (state.joystick.isActivate) {
+            let defX =  p1.x - p2.x;
+            let defY =  p1.y - p2.y;
+            let angle = Math.atan2(defY, defX);
+            
+            return angle;
         }
     },
 }
+
 
 document.addEventListener("mousedown", joystick.mousedown);
 document.addEventListener("mouseup", joystick.mouseup);
